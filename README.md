@@ -62,7 +62,7 @@ docker compose -f docker-compose.yml up -d
 | `RECENT_MTIME_MIN`  | 60                 | Time window for initial scan (e.g. 1440 for 1 day)   |
 | `MIN_FILE_AGE_SEC`  | 2                  | Ignore files younger than this (avoid partial write) |
 | `NG_PREVIEW_COUNT`  | 3                  | How many recent NG images to preview                 |
-| `FILENAME_REGEX`    | `^(OK|NG)-YYYYMMDD-HHMMSS-COUNT.(jpg|jpeg|png)` | Regex pattern for filenames |
+| `FILENAME_REGEX`    | `^(OK/NG)-YYYYMMDD-HHMMSS-COUNT.(jpg|jpeg|png)` | Regex pattern for filenames |
 
 ---
 
