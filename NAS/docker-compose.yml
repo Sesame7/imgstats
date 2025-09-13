@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  imgstats:
+    image: imgstats:1              # 使用离线导入的镜像
+    container_name: imgstats
+    working_dir: /app
+    command: ["python","/app/app.py"]  # 镜像内置 app.py
+    ports:
+      - "8080:8000"                # 浏览器 http://NAS_IP:8080
+    restart: unless-stopped
+    volumes:
+      - /volume1/share/QueryService/state:/state
+      - /volume1/share/IMAGES:/data:ro
+    environment:
+      - WATCH_DIR=/data
+      - DB_PATH=/state/data.sqlite
+      - 'FILENAME_REGEX=^(?P<pass>OK|NG)-(?P<date>\d{8})-(?P<time>\d{6})-(?P<count>\d+)\.(?:jpg|jpeg|png)$'
+      - POLL_INTERVAL_SEC=60
+      - RECENT_MTIME_MIN=1440      # 首次回填用大窗，跑稳后可改 60
+      - MIN_FILE_AGE_SEC=2
+      - NG_PREVIEW_COUNT=4
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/').read()"]
+      interval: 30s
+      timeout: 5s
+      retries: 5

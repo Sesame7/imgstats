@@ -1,0 +1,26 @@
+services:
+  query:
+    image: python:3.11-slim
+    container_name: query
+    working_dir: /app
+    command: bash -lc "pip install --no-cache-dir fastapi uvicorn[standard] apscheduler pillow && python app.py"
+    ports:
+      - "8080:8000"   # ← 外部访问 http://localhost:8080
+    restart: unless-stopped
+    volumes:
+      - ./app.py:/app/app.py:ro
+      - ./state:/state
+      - ./IMAGES:/data:ro         # NAS 或本机的图片根目录
+    environment:
+      - WATCH_DIR=/data
+      - DB_PATH=/state/data.sqlite
+      - 'FILENAME_REGEX=^(?P<pass>OK|NG)-(?P<date>\d{8})-(?P<time>\d{6})-(?P<count>\d+)\.(?:jpg|jpeg|png)$'
+      - POLL_INTERVAL_SEC=60
+      - RECENT_MTIME_MIN=1440   # 回填时用大值，平时改小值比如 60
+      - NG_PREVIEW_COUNT=4
+      - MIN_FILE_AGE_SEC=2
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/').read()"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
